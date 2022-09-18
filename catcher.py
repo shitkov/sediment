@@ -24,7 +24,7 @@ class BorderCatcher:
         # 1. Get images
         names = self._get_images(path)
         if len(names) == 0:
-            return [], []
+            return [], [], []
         
         # 2. Get borders
         images = []
@@ -95,9 +95,17 @@ class BorderCatcher:
         # 'default'
         if self.algorithm == 'default':
             # delta_arr = [filtered[i] - filtered[i + self.shift] for i in range(len(filtered) - self.shift)]
-            delta_arr = [(filtered[i] - filtered[i + self.shift]) * (1 / (1 + i * (1 / self.height))) for i in range(len(filtered) - self.shift)]
+            delta_arr = [(filtered[i] - filtered[i + self.shift]) * (1 / (1 + i * (2 / self.height))) for i in range(len(filtered) - self.shift)]
             delta_max = max(delta_arr)
-            border = delta_arr.index(delta_max) + int(self.shift / 2)
+            border = delta_arr.index(delta_max)
+            first_min = argrelextrema(np.array(delta_arr), np.less)[0].tolist()[0]
+            if border <= first_min:
+                if border >= int(self.shift / 2):
+                    border = border - int(self.shift / 2)
+                else:
+                    border = 0
+            else:
+                border = border + int(self.shift / 2)
         # 'corners'
         else:
             edges = cv2.Canny(image_hsv, threshold1=10, threshold2=40)
