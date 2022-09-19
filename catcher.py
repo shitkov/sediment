@@ -37,7 +37,7 @@ class BorderCatcher:
             borders.append(border)
         
         # 3. Smoothing borders idx
-        borders = [int(border) for border in self._border_filter(borders)]
+        borders = [int(border) if border >= 0 else 0 for border in self._border_filter(borders)]
 
         # 4. Get timeline
         minutes = self._get_minutes(names)
